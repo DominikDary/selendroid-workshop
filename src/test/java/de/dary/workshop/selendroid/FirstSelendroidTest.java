@@ -44,7 +44,7 @@ public class FirstSelendroidTest {
     }
     SelendroidConfiguration config = new SelendroidConfiguration();
 
-    config.addSupportedApp("src/test/resources/selendroid-test-app-0.16.0-SNAPSHOT.apk");
+    config.addSupportedApp("third-party/selendroid-test-app-0.16.0-SNAPSHOT.apk");
     selendroidServer = new SelendroidLauncher(config);
     selendroidServer.launchSelendroid();
   }
