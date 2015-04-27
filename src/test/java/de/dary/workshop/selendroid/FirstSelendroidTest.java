@@ -9,18 +9,20 @@
  */
 package de.dary.workshop.selendroid;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
 import io.selendroid.client.SelendroidDriver;
 import io.selendroid.common.SelendroidCapabilities;
 import io.selendroid.standalone.SelendroidConfiguration;
 import io.selendroid.standalone.SelendroidLauncher;
+import io.selendroid.testapp.User;
+import io.selendroid.testapp.flows.UserRegistrationFlows;
+import io.selendroid.testapp.pages.UserValidationPage;
 
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 
 public class FirstSelendroidTest {
   private static SelendroidLauncher selendroidServer = null;
@@ -32,40 +34,18 @@ public class FirstSelendroidTest {
         new SelendroidCapabilities("io.selendroid.testapp:0.16.0-SNAPSHOT");
 
     driver = new SelendroidDriver(caps);
-    driver.get("and-activity://io.selendroid.testapp.RegisterUserActivity");
 
-    WebElement username = driver.findElement(By.id("inputUsername"));
-    String userNameValue = "U$erNAme";
-    username.sendKeys(userNameValue);
+    User user = new User("u$erNAme", "me@myserver.ro", "mySecret", "Romanian Tester", "Python");
+    UserRegistrationFlows userRegistrationFlows = new UserRegistrationFlows(driver);
+    UserValidationPage userValidationPage = userRegistrationFlows.shouldRegisterUser(user);
 
-    String email = "me@myserver.com";
-    driver.findElement(By.name("email of the customer")).sendKeys(email);
-
-    String password = "myLittleSecret";
-    driver.findElement(By.id("inputPassword")).sendKeys(password);
-
-    WebElement nameInput = driver.findElement(By.xpath("//EditText[@id='inputName']"));
-    Assert.assertEquals(nameInput.getText(), "Mr. Burns");
-    nameInput.clear();
-    String name = "Romanian Tester";
-    nameInput.sendKeys(name);
-
-    driver.findElement(By.tagName("Spinner")).click();
-    String programmingLanguage = "Python";
-    driver.findElement(By.linkText(programmingLanguage)).click();
-
-    driver.findElement(By.className("android.widget.CheckBox")).click();
-
-    driver.findElement(By.linkText("Register User (verify)")).click();
-    Assert.assertEquals(driver.getCurrentUrl(), "and-activity://VerifyUserActivity");
-
-    Assert.assertEquals(driver.findElement(By.id("label_username_data")).getText(), userNameValue);
-    Assert.assertEquals(driver.findElement(By.id("label_email_data")).getText(), email);
-    Assert.assertEquals(driver.findElement(By.id("label_password_data")).getText(), password);
-    Assert.assertEquals(driver.findElement(By.id("label_name_data")).getText(), name);
-    Assert.assertEquals(driver.findElement(By.id("label_preferedProgrammingLanguage_data"))
-        .getText(), programmingLanguage);
-    Assert.assertEquals(driver.findElement(By.id("label_acceptAdds_data")).getText(), "true");
+    assertThat(userValidationPage.getUserName(), equalTo(user.username));
+    assertThat(userValidationPage.getEmail(), equalTo(user.email));
+    assertThat(userValidationPage.getPassword(), equalTo(user.password));
+    assertThat(userValidationPage.getName(), equalTo(user.name));
+    assertThat(userValidationPage.getPreferredProgrammingLanguage(),
+        equalTo(user.programmingLanguage));
+    assertThat(userValidationPage.areTermsAndAconditionsAccepted(), equalTo(true));
   }
 
   @BeforeClass
