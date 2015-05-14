@@ -13,14 +13,14 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import io.selendroid.client.SelendroidDriver;
 import io.selendroid.common.SelendroidCapabilities;
-import io.selendroid.standalone.SelendroidConfiguration;
 import io.selendroid.standalone.SelendroidLauncher;
 import io.selendroid.testapp.User;
 import io.selendroid.testapp.flows.UserRegistrationFlows;
 import io.selendroid.testapp.pages.UserValidationPage;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import java.net.URL;
+
+import org.junit.After;
 import org.junit.Test;
 import org.openqa.selenium.WebDriver;
 
@@ -33,7 +33,7 @@ public class FirstSelendroidTest {
     SelendroidCapabilities caps =
         new SelendroidCapabilities("io.selendroid.testapp:0.16.0-SNAPSHOT");
 
-    driver = new SelendroidDriver(caps);
+    driver = new SelendroidDriver(new URL("http://10.0.0.223:4444/wd/hub/"),caps);
 
     User user = new User("u$erNAme", "me@myserver.ro", "mySecret", "Romanian Tester", "Python");
     UserRegistrationFlows userRegistrationFlows = new UserRegistrationFlows(driver);
@@ -48,25 +48,10 @@ public class FirstSelendroidTest {
     assertThat(userValidationPage.areTermsAndAconditionsAccepted(), equalTo(true));
   }
 
-  @BeforeClass
-  public static void startSelendroidServer() throws Exception {
-    if (selendroidServer != null) {
-      selendroidServer.stopSelendroid();
-    }
-    SelendroidConfiguration config = new SelendroidConfiguration();
-
-    config.addSupportedApp("third-party/selendroid-test-app-0.16.0-SNAPSHOT.apk");
-    selendroidServer = new SelendroidLauncher(config);
-    selendroidServer.launchSelendroid();
-  }
-
-  @AfterClass
-  public static void stopSelendroidServer() {
+  @After
+  public void stopSelendroidServer() {
     if (driver != null) {
       driver.quit();
-    }
-    if (selendroidServer != null) {
-      selendroidServer.stopSelendroid();
     }
   }
 }
